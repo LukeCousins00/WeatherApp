@@ -1,22 +1,22 @@
 ﻿using System.Text.Json.Serialization;
-using WeatherApp.Models.WeatherAPI.CurrentApi;
+using WeatherApp.Logic.Models.WeatherAPI.CurrentApi;
 
-namespace WeatherApp.Models.WeatherAPI.ForecastApi;
+namespace WeatherApp.Logic.Models.WeatherAPI.ForecastApi;
 
 public class Day
 {
     [JsonPropertyName("maxtemp_c")]
     public float MaxTemperatureCelsius { get; set; }
     [JsonPropertyName("maxtemp_f")]
-    public float MaxTemperatureFarenheit { get; set; }
+    public float MaxTemperatureFahrenheit { get; set; }
     [JsonPropertyName("mintemp_c")]
     public float MinTemperatureCelsius { get; set; }
     [JsonPropertyName("mintemp_f")]
-    public float MinTemperatureFarenheit { get; set; }
+    public float MinTemperatureFahrenheit { get; set; }
     [JsonPropertyName("avgtemp_c")]
     public float AverageTemperatureCelsius { get; set; }
     [JsonPropertyName("avgtemp_f")]
-    public float AverageTemperatureFarenheit { get; set; }
+    public float AverageTemperatureFahrenheit { get; set; }
     [JsonPropertyName("maxwind_mph")]
     public float MaxWindSpeedMilesPerHour { get; set; }
     [JsonPropertyName("maxwind_kph")]

@@ -1,0 +1,101 @@
+﻿@model WeatherViewModel
+
+@{
+    ViewData["Title"] = "Home Page";
+}
+
+<h2 class="text-center">Weather Forecast Lookup</h2>
+
+<div class="container">
+    @if (Model != null)
+    {
+        <div class="results">
+            <div>
+                <span style="font-size: 20px;">@Model.Location.Name</span>
+            </div>
+            <div class="result">
+                <img src="@Model.Current.Condition.Icon" height="28" />
+                <span id="currentTemp">@Model.Current.TemperatureCelsius</span>
+                <span style="font-size: 18px;" class="mdi mdi-water-outline"></span>
+                <span>@Model.Current.Humidity</span>
+            </div>
+            <div class="result">
+                <span style="color: #2b7cb0" class="mdi mdi-thermometer-low"></span>
+                <span id="minTemp">@Model.Day.MinTemperatureCelsius</span>
+                <span style="color: #ff9600" class="mdi mdi-thermometer"></span>
+                <span id="avgTemp">@Model.Day.AverageTemperatureCelsius</span>
+                <span style="color: #a50000" class="mdi mdi-thermometer-high"></span>
+                <span id="maxTemp">@Model.Day.MaxTemperatureCelsius</span>
+            </div>
+            <div class="result">
+                <span class="mdi mdi-weather-sunset-down"></span>
+                <span>@Model.Astrology.Sunset</span>
+                <span>|</span>
+                <span>@Model.Astrology.Sunrise</span>
+                <span class="mdi mdi-weather-sunset-up"></span>
+            </div>
+        </div>
+    }
+
+    <form asp-controller="Weather" asp-action="Index" style="padding: 20px; width: 40%;">
+        <div class="form-floating flex">
+            <input type="text" class="form-control" id="location" name="location" placeholder="New York">
+            <label for="location">Location</label>
+            <button type="submit" class="btn"><span class="mdil mdil-magnify check"></span></button>
+        </div>
+    </form>
+
+    @if (Model != null)
+    {
+        <div style="flex-direction: row;">
+            <button type="button" class="btn" id="celsius" value="1" style="color: green"><span class="mdi mdi-temperature-celsius"></span></button>
+            <button type="button" class="btn" id="fahrenheit"><span class="mdi mdi-temperature-fahrenheit"></span></button>
+        </div>
+    }
+</div>
+
+<script type="text/javascript">
+    var celsiusBtn = document.getElementById("celsius");
+    var fahrenheitBtn = document.getElementById("fahrenheit");
+
+    var currentTemp = document.getElementById("currentTemp");
+    var minTemp = document.getElementById("minTemp");
+    var avgTemp = document.getElementById("avgTemp");
+    var maxTemp = document.getElementById("maxTemp");
+</script>
+
+@if (Model != null)
+{
+    <script type="text/javascript">
+        fahrenheitBtn.addEventListener("click", function () {
+            if (celsiusBtn.value == 1) { // On Fahrenheit, change to Celsius
+                currentTemp.textContent = @Model.Current.TemperatureFahrenheit;
+                minTemp.textContent = @Model.Day.MinTemperatureFahrenheit;
+                avgTemp.textContent = @Model.Day.AverageTemperatureFahrenheit;
+                maxTemp.textContent = @Model.Day.MaxTemperatureFahrenheit;
+
+                celsiusBtn.style.color = "black";
+                fahrenheitBtn.style.color = "green";
+
+                celsiusBtn.value = 0;
+                return
+            }
+        })
+
+        celsiusBtn.addEventListener("click", function () {
+            if (celsiusBtn.value == 0) // On Celsius, change to Fahrenheit
+            {
+                currentTemp.textContent = @Model.Current.TemperatureCelsius;
+                minTemp.textContent = @Model.Day.MinTemperatureCelsius;
+                avgTemp.textContent = @Model.Day.AverageTemperatureCelsius;
+                maxTemp.textContent = @Model.Day.MaxTemperatureCelsius;
+
+                celsiusBtn.style.color = "green";
+                fahrenheitBtn.style.color = "black";
+
+                celsiusBtn.value = 1;
+                return
+            }
+        })
+    </script>
+}

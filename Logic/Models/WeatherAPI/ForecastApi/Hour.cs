@@ -1,6 +1,6 @@
-﻿using WeatherApp.Models.WeatherAPI.CurrentApi;
+﻿using WeatherApp.Logic.Models.WeatherAPI.CurrentApi;
 
-namespace WeatherApp.Models.WeatherAPI.ForecastApi;
+namespace WeatherApp.Logic.Models.WeatherAPI.ForecastApi;
 
 public class Hour
 {

@@ -1,6 +1,6 @@
 ﻿using System.Text.Json.Serialization;
 
-namespace WeatherApp.Models.WeatherAPI.CurrentApi;
+namespace WeatherApp.Logic.Models.WeatherAPI.CurrentApi;
 
 public class Current
 {
@@ -9,7 +9,7 @@ public class Current
     [JsonPropertyName("temp_c")]
     public float TemperatureCelsius { get; set; }
     [JsonPropertyName("temp_f")]
-    public float TemperatureFarenheit { get; set; }
+    public float TemperatureFahrenheit { get; set; }
     [JsonPropertyName("is_day")]
     public int IsDay { get; set; }
     [JsonPropertyName("condition")]

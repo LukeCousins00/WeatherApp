@@ -1,6 +1,6 @@
 ﻿using System.Text.Json.Serialization;
 
-namespace WeatherApp.Models.WeatherAPI.ForecastApi;
+namespace WeatherApp.Logic.Models.WeatherAPI.ForecastApi;
 
 public class Astro
 {
@@ -9,7 +9,7 @@ public class Astro
     [JsonPropertyName("sunset")]
     public string Sunset { get; set; }
     [JsonPropertyName("moonrise")]
-    public string  Moonrise { get; set; }
+    public string Moonrise { get; set; }
     [JsonPropertyName("moonset")]
     public string Moonset { get; set; }
     [JsonPropertyName("moon_phase")]

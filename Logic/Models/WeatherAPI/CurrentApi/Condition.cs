@@ -1,6 +1,6 @@
 ﻿using System.Text.Json.Serialization;
 
-namespace WeatherApp.Models.WeatherAPI.CurrentApi;
+namespace WeatherApp.Logic.Models.WeatherAPI.CurrentApi;
 
 public class Condition
 {
