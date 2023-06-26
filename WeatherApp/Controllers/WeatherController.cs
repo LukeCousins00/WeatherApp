@@ -1,6 +1,7 @@
 ﻿using Microsoft.AspNetCore.Mvc;
 using WeatherApp.Logic.Interfaces;
-using WeatherApp.Logic.Models.WeatherAPI.ForecastApi;
+using WeatherApp.Logic.Models.WeatherAPI;
+using WeatherApp.Logic.Models.WeatherAPI.CurrentApi;
 using WeatherApp.ViewModels;
 
 namespace WeatherApp.Controllers;
@@ -21,16 +22,29 @@ public class WeatherController : Controller
     [HttpPost]
     public async Task<IActionResult> Index(string location)
     {
-        ForecastApiResponse forecast = await _weatherApiService.GetForecastAsync(location);
+        ForecastModel forecast = await _weatherApiService.GetForecastAsync(location);
+        WeatherViewModel viewModel = new WeatherViewModel();
 
-        WeatherViewModel viewModel = new WeatherViewModel()
+        if (forecast.ApiErrorResponse != null)
         {
-            Astrology = forecast.Forecast.TodaysForecast.First().Astrology,
-            Current = forecast.Current,
-            Day = forecast.Forecast.TodaysForecast.First().Day,
-            Location = forecast.Location
-        };
+            viewModel.ErrorMessage = forecast.ApiErrorResponse.Error.Message;
 
-        return View(viewModel);
+            return View(viewModel);
+        }
+
+        viewModel.Astrology = forecast.ForecastApiResponse.Forecast.TodaysForecast.First().Astrology;
+        viewModel.Current = forecast.ForecastApiResponse.Current;
+        viewModel.Day = forecast.ForecastApiResponse.Forecast.TodaysForecast.First().Day;
+        viewModel.Location = forecast.ForecastApiResponse.Location;
+
+        return View(viewModel); 
+    }
+
+    [HttpGet]
+    public async Task<IActionResult> AutocompleteData(string location)
+    {
+        var locations = await _weatherApiService.GetLocationsAsync(location);
+
+        return Json(locations);
     }
 }

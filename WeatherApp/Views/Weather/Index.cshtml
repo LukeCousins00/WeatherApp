@@ -3,38 +3,46 @@
 @{
     ViewData["Title"] = "Home Page";
 }
+<script src="~/lib/jquery/dist/jquery.min.js"></script>
 
 <h2 class="text-center">Weather Forecast Lookup</h2>
 
 <div class="container">
     @if (Model != null)
     {
-        <div class="results">
-            <div>
-                <span style="font-size: 20px;">@Model.Location.Name</span>
+        @if (Model.ErrorMessage != null)
+        {
+            <h2>@Model.ErrorMessage</h2>
+        }
+        else
+        {
+            <div class="results">
+                <div>
+                    <span style="font-size: 20px;">@Model.Location.Name</span>
+                </div>
+                <div class="result">
+                    <img src="@Model.Current.Condition.Icon" height="28" />
+                    <span id="currentTemp">@Model.Current.TemperatureCelsius</span>
+                    <span style="font-size: 18px;" class="mdi mdi-water-outline"></span>
+                    <span>@Model.Current.Humidity</span>
+                </div>
+                <div class="result">
+                    <span style="color: #2b7cb0" class="mdi mdi-thermometer-low"></span>
+                    <span id="minTemp">@Model.Day.MinTemperatureCelsius</span>
+                    <span style="color: #ff9600" class="mdi mdi-thermometer"></span>
+                    <span id="avgTemp">@Model.Day.AverageTemperatureCelsius</span>
+                    <span style="color: #a50000" class="mdi mdi-thermometer-high"></span>
+                    <span id="maxTemp">@Model.Day.MaxTemperatureCelsius</span>
+                </div>
+                <div class="result">
+                    <span class="mdi mdi-weather-sunset-down"></span>
+                    <span>@Model.Astrology.Sunset</span>
+                    <span>|</span>
+                    <span>@Model.Astrology.Sunrise</span>
+                    <span class="mdi mdi-weather-sunset-up"></span>
+                </div>
             </div>
-            <div class="result">
-                <img src="@Model.Current.Condition.Icon" height="28" />
-                <span id="currentTemp">@Model.Current.TemperatureCelsius</span>
-                <span style="font-size: 18px;" class="mdi mdi-water-outline"></span>
-                <span>@Model.Current.Humidity</span>
-            </div>
-            <div class="result">
-                <span style="color: #2b7cb0" class="mdi mdi-thermometer-low"></span>
-                <span id="minTemp">@Model.Day.MinTemperatureCelsius</span>
-                <span style="color: #ff9600" class="mdi mdi-thermometer"></span>
-                <span id="avgTemp">@Model.Day.AverageTemperatureCelsius</span>
-                <span style="color: #a50000" class="mdi mdi-thermometer-high"></span>
-                <span id="maxTemp">@Model.Day.MaxTemperatureCelsius</span>
-            </div>
-            <div class="result">
-                <span class="mdi mdi-weather-sunset-down"></span>
-                <span>@Model.Astrology.Sunset</span>
-                <span>|</span>
-                <span>@Model.Astrology.Sunrise</span>
-                <span class="mdi mdi-weather-sunset-up"></span>
-            </div>
-        </div>
+        }
     }
 
     <form asp-controller="Weather" asp-action="Index" style="padding: 20px; width: 40%;">
@@ -45,7 +53,7 @@
         </div>
     </form>
 
-    @if (Model != null)
+    @if (Model != null && Model.ErrorMessage == null)
     {
         <div style="flex-direction: row;">
             <button type="button" class="btn" id="celsius" value="1" style="color: green"><span class="mdi mdi-temperature-celsius"></span></button>
@@ -62,9 +70,45 @@
     var minTemp = document.getElementById("minTemp");
     var avgTemp = document.getElementById("avgTemp");
     var maxTemp = document.getElementById("maxTemp");
+
+    var inputField = document.getElementById("location");
+
+    function getAutocompleteData(locationString) {
+        $.ajax({
+            url: '@Url.Action("AutocompleteData","Weather")',
+            type: 'GET',
+            data: {
+                location: locationString
+            },
+            success: function (response) {
+                // Handle the successful response from the controller
+                console.log("success: "+response);
+            },
+            error: function (xhr, status, error) {
+                // Handle any errors that occur during the request
+                console.error("error: "+ error);
+            }
+        });
+    }
+
+    var lastInputTime = 0;
+    var timeoutPeriod = 10; // in seconds
+
+    inputField.addEventListener("keyup", function(){
+        var locationString = inputField.value;
+        var currentTime = Date.now();
+
+        console.log("current time: "+currentTime)
+        console.log("last typed: "+lastInputTime);
+       
+        if (locationString.length > 4 && Date.now() - lastInputTime > timeoutPeriod * 1000) {
+            lastInputTime = Date.now();
+            getAutocompleteData(locationString);
+        }
+    })
 </script>
 
-@if (Model != null)
+@if (Model != null && Model.ErrorMessage == null)
 {
     <script type="text/javascript">
         fahrenheitBtn.addEventListener("click", function () {

@@ -9,4 +9,7 @@ public class WeatherViewModel
     public Current Current { get; set; }
     public Astro Astrology { get; set; }
     public Location Location { get; set; }
+    public string ErrorMessage { get; set; }
+
+    public List<Location> AutocompleteLocations { get; set; }
 }
