@@ -4,6 +4,7 @@
     ViewData["Title"] = "Home Page";
 }
 <script src="~/lib/jquery/dist/jquery.min.js"></script>
+<script src="~/lib/bootstrap/dist/js/bootstrap.bundle.min.js"></script>
 
 <h2 class="text-center">Weather Forecast Lookup</h2>
 
@@ -45,13 +46,16 @@
         }
     }
 
-    <form asp-controller="Weather" asp-action="Index" style="padding: 20px; width: 40%;">
+    <form asp-controller="Weather" asp-action="Index" style="padding: 20px; width: 40%;" autocomplete="off">
         <div class="form-floating flex">
             <input type="text" class="form-control" id="location" name="location" placeholder="New York">
             <label for="location">Location</label>
-            <button type="submit" class="btn"><span class="mdil mdil-magnify check"></span></button>
+            <button tabindex="-1" type="submit" class="btn"><span class="mdil mdil-magnify check"></span></button>
+            <ul id="searchDropdown" tabindex="1" class="dropdown-menu dropdownMenu" data-popper-placement="bottom-start">
+            </ul>
         </div>
     </form>
+
 
     @if (Model != null && Model.ErrorMessage == null)
     {
@@ -72,6 +76,7 @@
     var maxTemp = document.getElementById("maxTemp");
 
     var inputField = document.getElementById("location");
+    var searchDropdown = document.getElementById("searchDropdown");
 
     function getAutocompleteData(locationString) {
         $.ajax({
@@ -82,7 +87,9 @@
             },
             success: function (response) {
                 // Handle the successful response from the controller
-                console.log("success: "+response);
+                console.log("success: "+ JSON.stringify(response));
+                searchDropdown.classList.add("show");
+                createDropdown(response);
             },
             error: function (xhr, status, error) {
                 // Handle any errors that occur during the request
@@ -92,20 +99,60 @@
     }
 
     var lastInputTime = 0;
-    var timeoutPeriod = 10; // in seconds
+    var lastLocationString = "";
+    var timeoutPeriod = 2; // in seconds
 
-    inputField.addEventListener("keyup", function(){
+    inputField.addEventListener("keyup", function(event) {
+        if  (event.key === 'Backspace'){
+            searchDropdown.classList.remove("show");
+            return;
+        }
         var locationString = inputField.value;
         var currentTime = Date.now();
 
         console.log("current time: "+currentTime)
         console.log("last typed: "+lastInputTime);
        
-        if (locationString.length > 4 && Date.now() - lastInputTime > timeoutPeriod * 1000) {
+        if (locationString.length > 4 && Date.now() - lastInputTime > timeoutPeriod * 1000 && lastLocationString != locationString) {
+            lastLocationString = locationString;
             lastInputTime = Date.now();
             getAutocompleteData(locationString);
         }
     })
+
+    function createDropdown(listLocations) {
+        while (searchDropdown.firstChild) { // Remove all old autocomplete suggestions
+            searchDropdown.removeChild(searchDropdown.firstChild);
+        }
+
+        for (let i = 0; i < listLocations.length; i++){
+            var liDropdown = document.createElement("li");
+            liDropdown.setAttribute("href", "#");
+
+            var aDropdown = document.createElement("a");
+            aDropdown.textContent = listLocations[i].name + ", " + listLocations[i].region + ", " + listLocations[i].country;
+            aDropdown.classList.add("dropdown-item");
+
+            liDropdown.appendChild(aDropdown);
+            searchDropdown.appendChild(liDropdown);
+        }
+    }
+
+    // Get all the <a> elements inside <li> elements inside <ul> elements
+    const anchorElements = document.querySelectorAll('ul li a');
+
+    // Add event listener to each <a> element
+    anchorElements.forEach(anchor => {
+        anchor.addEventListener('keydown', (event) => {
+            if (event.key === 'Enter') {
+                // Perform your desired action here
+                console.log(anchor.textContent);
+                inputField.value = anchor.textContent;
+                searchDropdown.classList.remove("show");
+                inputField.focus();
+            }
+        });
+    });
 </script>
 
 @if (Model != null && Model.ErrorMessage == null)

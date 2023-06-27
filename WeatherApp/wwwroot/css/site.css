@@ -50,3 +50,10 @@ html, body {
 .result > span {
     padding-right: 8px;
 }
+
+.dropdownMenu {
+    position: absolute;
+    inset: 30px auto auto 0px;
+    margin: 0px;
+    transform: translate(0px, 35px);
+}
