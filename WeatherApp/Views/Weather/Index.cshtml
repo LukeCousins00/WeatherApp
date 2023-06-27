@@ -19,7 +19,7 @@
         {
             <div class="results">
                 <div>
-                    <span style="font-size: 20px;">@Model.Location.Name</span>
+                    <span style="font-size: 20px;">@Model.Location.Name, @Model.Location.Region, @Model.Location.Country</span>
                 </div>
                 <div class="result">
                     <img src="@Model.Current.Condition.Icon" height="28" />
@@ -46,7 +46,7 @@
         }
     }
 
-    <form asp-controller="Weather" asp-action="Index" style="padding: 20px; width: 40%;" autocomplete="off">
+    <form asp-controller="Weather" asp-action="Index" id="locationForm" style="padding: 20px; width: 40%;" autocomplete="off">
         <div class="form-floating flex">
             <input type="text" class="form-control" id="location" name="location" placeholder="New York">
             <label for="location">Location</label>
@@ -78,6 +78,12 @@
     var inputField = document.getElementById("location");
     var searchDropdown = document.getElementById("searchDropdown");
 
+    var locationForm = document.getElementById("locationForm");
+
+    document.addEventListener('DOMContentLoaded', function () {
+        inputField.focus();
+    });
+
     function getAutocompleteData(locationString) {
         $.ajax({
             url: '@Url.Action("AutocompleteData","Weather")',
@@ -87,13 +93,13 @@
             },
             success: function (response) {
                 // Handle the successful response from the controller
-                console.log("success: "+ JSON.stringify(response));
+                console.log("success: " + JSON.stringify(response));
                 searchDropdown.classList.add("show");
                 createDropdown(response);
             },
             error: function (xhr, status, error) {
                 // Handle any errors that occur during the request
-                console.error("error: "+ error);
+                console.error("error: " + error);
             }
         });
     }
@@ -102,18 +108,12 @@
     var lastLocationString = "";
     var timeoutPeriod = 2; // in seconds
 
-    inputField.addEventListener("keyup", function(event) {
-        if  (event.key === 'Backspace'){
-            searchDropdown.classList.remove("show");
-            return;
-        }
+    inputField.addEventListener("keyup", function (event) {
         var locationString = inputField.value;
         var currentTime = Date.now();
 
-        console.log("current time: "+currentTime)
-        console.log("last typed: "+lastInputTime);
-       
-        if (locationString.length > 4 && Date.now() - lastInputTime > timeoutPeriod * 1000 && lastLocationString != locationString) {
+        //Date.now() - lastInputTime > timeoutPeriod * 1000 &&
+        if (locationString.length > 4 && lastLocationString != locationString) {
             lastLocationString = locationString;
             lastInputTime = Date.now();
             getAutocompleteData(locationString);
@@ -125,34 +125,43 @@
             searchDropdown.removeChild(searchDropdown.firstChild);
         }
 
-        for (let i = 0; i < listLocations.length; i++){
+        if (listLocations.length == 0){
             var liDropdown = document.createElement("li");
-            liDropdown.setAttribute("href", "#");
+            liDropdown.setAttribute("tabindex", "0");
+
+            var aDropdown = document.createElement("a");
+            aDropdown.textContent = "No matching locations found.";
+            aDropdown.classList.add("dropdown-item");
+
+            liDropdown.appendChild(aDropdown);
+            searchDropdown.appendChild(liDropdown);
+            return;
+        }
+
+        for (let i = 0; i < listLocations.length; i++) {
+            var liDropdown = document.createElement("li");
+            liDropdown.setAttribute("tabindex", "0");
 
             var aDropdown = document.createElement("a");
             aDropdown.textContent = listLocations[i].name + ", " + listLocations[i].region + ", " + listLocations[i].country;
             aDropdown.classList.add("dropdown-item");
+            liDropdown.addEventListener('keyup', function (event) {
+                if (event.key === 'Enter') {
+                    inputField.value = listLocations[i].name + ", " + listLocations[i].region + ", " + listLocations[i].country;
+                    searchDropdown.classList.remove("show");
+                    inputField.focus();
+                }
+            })
+            liDropdown.addEventListener('click', function (event) {
+                inputField.value = listLocations[i].name + ", " + listLocations[i].region + ", " + listLocations[i].country;
+                searchDropdown.classList.remove("show");
+                inputField.focus();
+            })
 
             liDropdown.appendChild(aDropdown);
             searchDropdown.appendChild(liDropdown);
         }
     }
-
-    // Get all the <a> elements inside <li> elements inside <ul> elements
-    const anchorElements = document.querySelectorAll('ul li a');
-
-    // Add event listener to each <a> element
-    anchorElements.forEach(anchor => {
-        anchor.addEventListener('keydown', (event) => {
-            if (event.key === 'Enter') {
-                // Perform your desired action here
-                console.log(anchor.textContent);
-                inputField.value = anchor.textContent;
-                searchDropdown.classList.remove("show");
-                inputField.focus();
-            }
-        });
-    });
 </script>
 
 @if (Model != null && Model.ErrorMessage == null)

@@ -15,9 +15,9 @@ public class WeatherApiService : IWeatherApiService
         _httpClient = httpClient;
     }
 
-    public async Task<ForecastModel> GetForecastAsync(string location)
+    public async Task<ForecastModel> GetForecastAsync(string location, string apiKey)
     {
-        var weatherApiResponse = await _httpClient.GetAsync($"/v1/forecast.json?key={Environment.GetEnvironmentVariable("API_KEY")}&q={location}");
+        var weatherApiResponse = await _httpClient.GetAsync($"/v1/forecast.json?key={apiKey}&q={location}");
         var apiResponseContent = await weatherApiResponse.Content.ReadAsStringAsync();
 
         ForecastModel forecastModel = new ForecastModel();
@@ -42,9 +42,9 @@ public class WeatherApiService : IWeatherApiService
         return forecastModel;
     }
 
-    public async Task<List<Location>> GetLocationsAsync(string location)
+    public async Task<List<Location>> GetLocationsAsync(string location, string apiKey)
     {
-        var weatherApiResponse = await _httpClient.GetAsync($"/v1/search.json?key={Environment.GetEnvironmentVariable("API_KEY")}&q={location}");
+        var weatherApiResponse = await _httpClient.GetAsync($"/v1/search.json?key={apiKey}&q={location}");
         var apiResponseContent = await weatherApiResponse.Content.ReadAsStringAsync();
 
         if (!weatherApiResponse.IsSuccessStatusCode)

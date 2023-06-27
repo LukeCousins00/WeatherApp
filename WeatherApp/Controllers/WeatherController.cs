@@ -1,4 +1,5 @@
-﻿using Microsoft.AspNetCore.Mvc;
+﻿using Microsoft.AspNetCore.DataProtection.KeyManagement;
+using Microsoft.AspNetCore.Mvc;
 using WeatherApp.Logic.Interfaces;
 using WeatherApp.Logic.Models.WeatherAPI;
 using WeatherApp.Logic.Models.WeatherAPI.CurrentApi;
@@ -8,10 +9,13 @@ namespace WeatherApp.Controllers;
 public class WeatherController : Controller
 {
     private readonly IWeatherApiService _weatherApiService;
+    private readonly IConfiguration _configuration;
 
-    public WeatherController(IWeatherApiService weatherApiService)
+    public WeatherController(IWeatherApiService weatherApiService, IConfiguration configuration)
     {
         _weatherApiService = weatherApiService;
+        _configuration = configuration;
+
     }
 
     public IActionResult Index()
@@ -22,7 +26,9 @@ public class WeatherController : Controller
     [HttpPost]
     public async Task<IActionResult> Index(string location)
     {
-        ForecastModel forecast = await _weatherApiService.GetForecastAsync(location);
+        var apiKey = _configuration.GetSection("WeatherApiKey").Value;
+
+        ForecastModel forecast = await _weatherApiService.GetForecastAsync(location, apiKey);
         WeatherViewModel viewModel = new WeatherViewModel();
 
         if (forecast.ApiErrorResponse != null)
@@ -43,7 +49,9 @@ public class WeatherController : Controller
     [HttpGet]
     public async Task<IActionResult> AutocompleteData(string location)
     {
-        var locations = await _weatherApiService.GetLocationsAsync(location);
+        var apiKey = _configuration.GetSection("WeatherApiKey").Value;
+
+        var locations = await _weatherApiService.GetLocationsAsync(location, apiKey);
 
         return Json(locations);
     }
